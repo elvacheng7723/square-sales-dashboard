@@ -268,7 +268,7 @@
 
   <div id="configWarning" class="config-warning" style="display:none;">
     还没配置好。请打开这个 index.html 文件,找到底部
-    <code>const CONFIG = {...}</code> 这一段,把 owner / repo / token 三个值改成你自己的,
+    <code>const CONFIG = {...}</code> 这一段,把 owner / repo 改成你自己的,
     保存后重新上传到 GitHub Pages 仓库。
   </div>
 
@@ -316,17 +316,18 @@
 </main>
 
 <footer>
-  数据来自私有 GitHub 仓库,通过只读 token 拉取,请勿把此页面链接分享给不信任的人。
+  数据来自公开 GitHub 仓库的销售汇总报告。
 </footer>
 
 <script>
 // ============================================================
-// 配置区: 改成你自己的仓库信息和 token
+// 配置区: 改成你自己的仓库信息
+// (仓库已设为 Public,不再需要 token)
 // ============================================================
 const CONFIG = {
-  owner: "elvacheng7723",       // 例如 "elvacheng7723"
-  repo: "square-sales-report",     // 存放 reports/ 数据的那个私有仓库名
-  token: "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",
+  owner: "elvacheng7723",
+  repo: "square-sales-report",
+  branch: "main",
 };
 // ============================================================
 
@@ -359,20 +360,11 @@ function getWeekRange(dateStr) {
 }
 
 async function fetchReport(date) {
-  const url = `https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/reports/${date}.json`;
-  const res = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${CONFIG.token}`,
-      Accept: "application/vnd.github.raw+json",
-      "X-GitHub-Api-Version": "2022-11-28",
-    },
-  });
+  const url = `https://raw.githubusercontent.com/${CONFIG.owner}/${CONFIG.repo}/${CONFIG.branch}/reports/${date}.json`;
+  const res = await fetch(url);
 
   if (res.status === 404) {
     return { date, found: false };
-  }
-  if (res.status === 401 || res.status === 403) {
-    throw new Error("token无效或没有权限,请检查CONFIG里的token是否正确、是否已授权访问这个仓库");
   }
   if (!res.ok) {
     throw new Error(`拉取 ${date} 失败: HTTP ${res.status}`);
@@ -537,7 +529,7 @@ el("queryBtn").addEventListener("click", () => {
 });
 
 // --- 配置检查 ---
-if (CONFIG.token.includes("在这里粘贴") || CONFIG.owner.includes("你的GitHub")) {
+if (CONFIG.owner.includes("你的GitHub")) {
   el("configWarning").style.display = "block";
 }
 </script>
