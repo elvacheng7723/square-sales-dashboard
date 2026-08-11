@@ -53,6 +53,29 @@
     font-size: 13px;
     letter-spacing: 0.02em;
   }
+  .page-nav {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .page-nav-item {
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 999px;
+    text-decoration: none;
+    color: #a9b7c1;
+    border: 1px solid #2c3d4b;
+  }
+  .page-nav-item.active {
+    background: var(--mustard);
+    color: var(--navy);
+    border-color: var(--mustard);
+  }
+  .page-nav-item:not(.active):hover {
+    border-color: var(--mustard);
+    color: var(--paper);
+  }
 
   main {
     max-width: 880px;
@@ -261,6 +284,10 @@
   <div class="inner">
     <h1>销售看板</h1>
     <p id="repoLabel" class="mono">Square Sales Dashboard</p>
+    <nav class="page-nav">
+      <span class="page-nav-item active">商品销量</span>
+      <a class="page-nav-item" href="channels.html">渠道营业额</a>
+    </nav>
   </div>
 </header>
 
@@ -380,8 +407,6 @@ async function fetchReport(date) {
 
 function aggregate(reports) {
   const agg = {
-    chipsSalesCents: 0,
-    chipsPortionFromPacksQty: 0,
     byCategory: {}, // category -> { target -> qty }
     missingDates: [],
     ordersCount: 0,
@@ -395,8 +420,6 @@ function aggregate(reports) {
     }
     agg.daysFound += 1;
     const d = r.data;
-    agg.chipsSalesCents += d.chipsSalesCents || 0;
-    agg.chipsPortionFromPacksQty += d.chipsPortionFromPacksQty || 0;
     agg.ordersCount += d.ordersCount || 0;
 
     for (const [target, entry] of Object.entries(d.qtySummary || {})) {
@@ -412,16 +435,9 @@ function aggregate(reports) {
 function render(agg, rangeLabel) {
   el("repoLabel").textContent = rangeLabel;
 
-  const chipsDollar = (agg.chipsSalesCents / 100).toFixed(2);
-
   let html = `
     <div class="panel">
       <div class="stat-row">
-        <div class="stat">
-          <div class="label">薯条营业额</div>
-          <div class="value">$${chipsDollar}</div>
-          ${agg.chipsPortionFromPacksQty > 0 ? `<div class="sub">另有 ${agg.chipsPortionFromPacksQty} 份薯条来自套餐,未计入金额</div>` : ""}
-        </div>
         <div class="stat">
           <div class="label">已完成订单数</div>
           <div class="value">${agg.ordersCount}</div>
