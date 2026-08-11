@@ -360,7 +360,7 @@ function getWeekRange(dateStr) {
 }
 
 async function fetchReport(date) {
-  const url = `https://raw.githubusercontent.com/${CONFIG.owner}/${CONFIG.repo}/${CONFIG.branch}/reports/${date}.json`;
+  const url = `https://raw.githubusercontent.com/${CONFIG.owner}/${CONFIG.repo}/${CONFIG.branch}/reports/${date}-items.json`;
   const res = await fetch(url);
 
   if (res.status === 404) {
